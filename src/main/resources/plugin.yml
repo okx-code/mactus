@@ -1,0 +1,5 @@
+name: ${name}
+version: ${version}
+main: com.civrealms.mactus.MactusPlugin
+description: ${description}
+authors: [Okx]
