@@ -9,12 +9,17 @@
   <version>1.0</version>
   <description>CivRealms PvP plugin</description>
 
+  <properties>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.build.targetEncoding>UTF-8</project.build.targetEncoding>
+  </properties>
+
   <build>
     <resources>
       <resource>
-        <includes>
-          <include>plugin.yml</include>
-        </includes>
+        <directory>src/main/resources</directory>
         <filtering>true</filtering>
       </resource>
     </resources>

@@ -7,26 +7,33 @@ import org.bukkit.inventory.ItemStack;
 
 public class ArmourNbt_1_12_2 implements ArmourNbt {
 
-  public void setOwner(ItemStack item, UUID owner) {
+  public static final String CR_OWNER = "cr_owner";
+
+  public ItemStack setOwner(ItemStack item, UUID owner) {
     net.minecraft.server.v1_12_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
     NBTTagCompound compound = nmsItem.getTag();
     if (compound == null) {
       compound = new NBTTagCompound();
     }
-    compound.setString("cr_owner", owner.toString());
+    compound.setString(CR_OWNER, owner.toString());
     nmsItem.setTag(compound);
+    return CraftItemStack.asBukkitCopy(nmsItem);
   }
 
   public UUID getOwner(ItemStack item) {
     net.minecraft.server.v1_12_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
     NBTTagCompound compound = nmsItem.getTag();
-    if (compound == null) {
+    if (compound == null || !compound.hasKey(CR_OWNER)) {
       return null;
     }
-    String crOwner = compound.getString("cr_owner");
+    String crOwner = compound.getString(CR_OWNER);
     if (crOwner == null) {
       return null;
     }
-    return UUID.fromString(crOwner);
+    try {
+      return UUID.fromString(crOwner);
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
   }
 }
