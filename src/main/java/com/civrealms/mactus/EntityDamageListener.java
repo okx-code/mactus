@@ -370,15 +370,15 @@ public class EntityDamageListener implements Listener {
     }
     switch (type) {
       case DIAMOND:
-        return 0.8;
+        return 0.9;
       case IRON:
-        return 0.75;
+        return 0.85;
       case GOLD:
-        return 0.7;
+        return 0.75;
       case CHAIN:
-        return 0.65;
+        return 0.7;
       case LEATHER:
-        return 0.6;
+        return 0.65;
       default:
         return 0;
     }
@@ -409,11 +409,12 @@ public class EntityDamageListener implements Listener {
     // prot 2 -> 0.07
     // prot 3 -> 0.09
     // prot 1 -> 0.10
-    return 0.01 * (10 - ((envProtLevels / 4D - 4) * (envProtLevels / 5D - 5)) / 2);
+    return 0.004 * (10 - ((envProtLevels / 4D - 4) * (envProtLevels / 5D - 5)) / 2);
   }
 
   private double getProjectileProtectionReduction(int projProtLevels) {
-    return 0.01 * (13.925 - ((projProtLevels / 4D - 4.7) * (projProtLevels / 5D - 5.7)) / 2);
+    // proj prot 16 ->
+    return 0.0042 * (13.925 - ((projProtLevels / 4D - 4.7) * (projProtLevels / 5D - 5.7)) / 2);
   }
 
   private boolean isNearPortal(Location pl, int y) {
