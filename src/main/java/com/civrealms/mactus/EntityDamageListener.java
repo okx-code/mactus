@@ -432,15 +432,15 @@ public class EntityDamageListener implements Listener {
   }
 
   private double getEnvironmentalProtectionReduction(int envProtLevels) {
-    // prot 1 -> 0.04
-    // prot 2 -> 0.07
-    // prot 3 -> 0.09
-    // prot 1 -> 0.10
+    // prot 1 -> 0.0148
+    // prot 2 -> 0.0264
+    // prot 3 -> 0.0348
+    // prot 1 -> 0.0400
     return 0.004 * (10 - ((envProtLevels / 4D - 4) * (envProtLevels / 5D - 5)) / 2);
   }
 
   private double getProjectileProtectionReduction(int projProtLevels) {
-    // proj prot 16 ->
-    return 0.0042 * (13.925 - ((projProtLevels / 4D - 4.7) * (projProtLevels / 5D - 5.7)) / 2);
+    // proj prot 16 -> 0.0551
+    return 0.0044 * (13.925 - ((projProtLevels / 4D - 4.7) * (projProtLevels / 5D - 5.7)) / 2);
   }
 }
