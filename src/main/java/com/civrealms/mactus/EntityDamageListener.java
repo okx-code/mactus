@@ -8,9 +8,7 @@ import java.util.WeakHashMap;
 import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Arrow;
@@ -38,6 +36,7 @@ import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
 
 public class EntityDamageListener implements Listener {
+
   public static int ILL_FIT_COOLDOWN = 60_000;
 
   private final Map<Entity, Long> animationTimer = new WeakHashMap<>();
@@ -54,37 +53,45 @@ public class EntityDamageListener implements Listener {
   }
 
   @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
-  public void onGappleEat(PlayerItemConsumeEvent event){
-    if (event.getItem().getType() == Material.GOLDEN_APPLE && event.getItem().getDurability() == 0){
+  public void onGappleEat(PlayerItemConsumeEvent event) {
+    if (event.getItem().getType() == Material.GOLDEN_APPLE
+        && event.getItem().getDurability() == 0) {
       event.getPlayer().setCooldown(Material.GOLDEN_APPLE, 1200);
     }
   }
 
   @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
   public void onPotionSplash(PotionSplashEvent event) {
-    PotionMeta pm = (PotionMeta)event.getPotion().getItem().getItemMeta();
+    PotionMeta pm = (PotionMeta) event.getPotion().getItem().getItemMeta();
     if (pm.getBasePotionData().getType().equals(PotionType.AWKWARD)
         || pm.getBasePotionData().getType().equals(PotionType.MUNDANE)
-        || pm.getBasePotionData().getType().equals(PotionType.THICK)){
-      for(LivingEntity le : event.getAffectedEntities()) {
-        if (le instanceof Player){
-          Player p = (Player)le;
-          double currHealthPercent = (p.getHealth()/p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
-          p.setHealth(Math.max(currHealthPercent-0.2,0.1)*p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
+        || pm.getBasePotionData().getType().equals(PotionType.THICK)) {
+      for (LivingEntity le : event.getAffectedEntities()) {
+        if (le instanceof Player) {
+          Player p = (Player) le;
+          double currHealthPercent = (p.getHealth() / p.getAttribute(Attribute.GENERIC_MAX_HEALTH)
+              .getDefaultValue());
+          p.setHealth(
+              Math.max(currHealthPercent - 0.2, 0.1) * p.getAttribute(Attribute.GENERIC_MAX_HEALTH)
+                  .getDefaultValue());
         }
       }
       return;
     }
-    for(PotionEffect pe : event.getPotion().getEffects()) {
-      for(LivingEntity le : event.getAffectedEntities()) {
-        if(pe.getType().equals(PotionEffectType.HARM) && le instanceof Player) {
+    for (PotionEffect pe : event.getPotion().getEffects()) {
+      for (LivingEntity le : event.getAffectedEntities()) {
+        if (pe.getType().equals(PotionEffectType.HARM) && le instanceof Player) {
           continue;
         }
-        if (pm.getBasePotionData().getType().equals(PotionType.INSTANT_HEAL) && le instanceof Player && !le.isDead()){
+        if (pm.getBasePotionData().getType().equals(PotionType.INSTANT_HEAL) && le instanceof Player
+            && !le.isDead()) {
           event.setCancelled(true);
-          Player p = (Player)le;
-          double currHealthPercent = (p.getHealth()/p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
-          p.setHealth(Math.min(currHealthPercent+0.25,1.0)*p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
+          Player p = (Player) le;
+          double currHealthPercent = (p.getHealth() / p.getAttribute(Attribute.GENERIC_MAX_HEALTH)
+              .getDefaultValue());
+          p.setHealth(
+              Math.min(currHealthPercent + 0.25, 1.0) * p.getAttribute(Attribute.GENERIC_MAX_HEALTH)
+                  .getDefaultValue());
           continue;
         }
         le.removePotionEffect(pe.getType());
@@ -100,15 +107,16 @@ public class EntityDamageListener implements Listener {
   }
 
   @EventHandler
-  public void webCooldown(BlockPlaceEvent event){
-    if (event.getBlock().getType() == Material.WEB){
-      if(this.webCooldown.containsKey(event.getPlayer()) && System.currentTimeMillis() - this.webCooldown.get(event.getPlayer()) < 5000){
+  public void webCooldown(BlockPlaceEvent event) {
+    if (event.getBlock().getType() == Material.WEB) {
+      if (this.webCooldown.containsKey(event.getPlayer())
+          && System.currentTimeMillis() - this.webCooldown.get(event.getPlayer()) < 5000) {
         event.setCancelled(true);
         event.getPlayer().sendMessage(ChatColor.RED + "Cooldown not complete for web placement.");
       } else {
         ItemStack[] inv = event.getPlayer().getInventory().getContents();
-        for (ItemStack is : inv){
-          if (ArmourType.getArmorType(is) != null){
+        for (ItemStack is : inv) {
+          if (ArmourType.getArmorType(is) != null) {
             this.webCooldown.put(event.getPlayer(), System.currentTimeMillis());
             event.getPlayer().setCooldown(Material.WEB, 100);
             return;
@@ -145,9 +153,11 @@ public class EntityDamageListener implements Listener {
 
     if (entity instanceof Player) {
       Player player = (Player) entity;
-      boolean joinedRecently = this.lastJoined.containsKey(player) && System.currentTimeMillis() - this.lastJoined.get(player) < 2000;
+      boolean joinedRecently = this.lastJoined.containsKey(player)
+          && System.currentTimeMillis() - this.lastJoined.get(player) < 2000;
       String world = player.getWorld().getName();
-      if ((cause == DamageCause.VOID || cause == DamageCause.SUFFOCATION || cause == DamageCause.DROWNING)
+      if ((cause == DamageCause.VOID || cause == DamageCause.SUFFOCATION
+          || cause == DamageCause.DROWNING)
           && joinedRecently && world.equals("aqua")) {
         event.setCancelled(true);
       } else if (cause == DamageCause.FALL && joinedRecently && !world.equals("prison")) {
@@ -164,13 +174,15 @@ public class EntityDamageListener implements Listener {
     //default "weapon" damage 1.5 covers fists and stuff and mobs like spiders
     //checks for projectile or melee because I'm not sure if fire damage while in a fire is "entity on entity" or not, this just clearly makes it mobs and players only.
     double weaponTargetDamage = 0.375;
-    if (event instanceof EntityDamageByEntityEvent && (cause == DamageCause.PROJECTILE || cause == DamageCause.ENTITY_ATTACK)) {
+    if (event instanceof EntityDamageByEntityEvent && (cause == DamageCause.PROJECTILE
+        || cause == DamageCause.ENTITY_ATTACK)) {
       EntityDamageByEntityEvent byEntityEvent = (EntityDamageByEntityEvent) event;
 
       //cps ANIMATION EVENT VERSION, up here at top because it applies to mobs too
       Entity attacker = byEntityEvent.getDamager();
       if (!this.animationTimer.containsKey(attacker)) {
-        this.animationTimer.put(attacker, System.currentTimeMillis() - 1000); //allow first hit to pass if hasn't swung yet since logging on
+        this.animationTimer.put(attacker, System.currentTimeMillis()
+            - 1000); //allow first hit to pass if hasn't swung yet since logging on
       }
       long animationGap = (System.currentTimeMillis() - this.animationTimer.get(attacker));
       double cpsMultiplier;
@@ -201,18 +213,22 @@ public class EntityDamageListener implements Listener {
 
       //choose weapon properly for bows or other weapons (bows require tracing back the ownership of the arrow...)
       ItemStack weapon = null;
-      if (byEntityEvent.getDamager() instanceof Arrow && ((Arrow) (byEntityEvent.getDamager())).getShooter() instanceof Player) {
-        weapon = ((Player) (((Arrow) (byEntityEvent.getDamager())).getShooter())).getInventory().getItemInMainHand();
+      if (byEntityEvent.getDamager() instanceof Arrow && ((Arrow) (byEntityEvent.getDamager()))
+          .getShooter() instanceof Player) {
+        weapon = ((Player) (((Arrow) (byEntityEvent.getDamager())).getShooter())).getInventory()
+            .getItemInMainHand();
       } else if (byEntityEvent.getDamager() instanceof Player) {
         weapon = ((Player) byEntityEvent.getDamager()).getInventory().getItemInMainHand();
       }
 
       //if it's a real weapon, substitute in special civrealms damage amounts
       if (weapon != null) {
-        if (weapon.getType() == Material.WOOD_SWORD && weapon.hasItemMeta() && weapon.getItemMeta().hasEnchant(Enchantment.KNOCKBACK)) {
+        if (weapon.getType() == Material.WOOD_SWORD && weapon.hasItemMeta() && weapon.getItemMeta()
+            .hasEnchant(Enchantment.KNOCKBACK)) {
           event.setCancelled(true);
           if ((attacker instanceof Player)) {
-            attacker.sendMessage(ChatColor.RED + "KB test swords are disabled until further notice / until new testing is needed.");
+            attacker.sendMessage(ChatColor.RED
+                + "KB test swords are disabled until further notice / until new testing is needed.");
           }
         }
         if (weapon.getType().equals(Material.BOW)) {
@@ -223,17 +239,22 @@ public class EntityDamageListener implements Listener {
                   * 6.0; //7.5 typical full draw across a short field. 100 blocks above full draw straight down would be 9.3, limp wristed point blank 1.2 damage.
         } else if (weapon.getType().equals(Material.WOOD_SWORD)) {
           weaponTargetDamage = 0.1;
-        } else if (weapon.getType().equals(Material.STONE_SWORD) || weapon.getType().equals(Material.STONE_AXE)) {
+        } else if (weapon.getType().equals(Material.STONE_SWORD) || weapon.getType()
+            .equals(Material.STONE_AXE)) {
           weaponTargetDamage = 1.2;
-        } else if (weapon.getType().equals(Material.GOLD_SWORD) || weapon.getType().equals(Material.GOLD_AXE)) {
+        } else if (weapon.getType().equals(Material.GOLD_SWORD) || weapon.getType()
+            .equals(Material.GOLD_AXE)) {
           weaponTargetDamage = 2.65;
-        } else if (weapon.getType().equals(Material.IRON_SWORD) || weapon.getType().equals(Material.IRON_AXE)) {
-          if (weapon.hasItemMeta() && weapon.getItemMeta().hasLore() && weapon.getItemMeta().getLore().get(0).equals("Made of tempered steel")) {
+        } else if (weapon.getType().equals(Material.IRON_SWORD) || weapon.getType()
+            .equals(Material.IRON_AXE)) {
+          if (weapon.hasItemMeta() && weapon.getItemMeta().hasLore() && weapon.getItemMeta()
+              .getLore().get(0).equals("Made of tempered steel")) {
             weaponTargetDamage = 4;
           } else {
             weaponTargetDamage = 1.8;
           }
-        } else if (weapon.getType().equals(Material.DIAMOND_SWORD) || weapon.getType().equals(Material.DIAMOND_AXE)) {
+        } else if (weapon.getType().equals(Material.DIAMOND_SWORD) || weapon.getType()
+            .equals(Material.DIAMOND_AXE)) {
           weaponTargetDamage = 6.6;
         }
 
@@ -242,9 +263,11 @@ public class EntityDamageListener implements Listener {
 
         //boost damage for enchanted weapons
         if (weapon.getEnchantments().containsKey(Enchantment.ARROW_DAMAGE)) { //power
-          weaponTargetDamage = weaponTargetDamage * Math.pow(1.17, weapon.getEnchantments().get(Enchantment.ARROW_DAMAGE));
+          weaponTargetDamage = weaponTargetDamage * Math
+              .pow(1.17, weapon.getEnchantments().get(Enchantment.ARROW_DAMAGE));
         } else if (weapon.getEnchantments().containsKey(Enchantment.DAMAGE_ALL)) { //sharpness
-          weaponTargetDamage = weaponTargetDamage * Math.pow(1.17, weapon.getEnchantments().get(Enchantment.DAMAGE_ALL));
+          weaponTargetDamage = weaponTargetDamage * Math
+              .pow(1.17, weapon.getEnchantments().get(Enchantment.DAMAGE_ALL));
         }
 
         //LOG.info("pre cps or crit modifier, target damage: " + weaponTargetDamage);
@@ -256,7 +279,8 @@ public class EntityDamageListener implements Listener {
 
         //now calculate the final 3 values for player on player, damage, armor absorb abs amount and enchant absorb abs amount:
         weaponTargetDamage = weaponTargetDamage * cpsMultiplier;
-        double armorTargetDamageRemoved = -armourReduction * weaponTargetDamage; //arbitrarily choose to apply armor part first
+        double armorTargetDamageRemoved =
+            -armourReduction * weaponTargetDamage; //arbitrarily choose to apply armor part first
         double enchantTargetDamageRemoved = -enchantReduction * weaponTargetDamage;
 
         //then apply them:
@@ -272,12 +296,14 @@ public class EntityDamageListener implements Listener {
 
         if ((event.getEntity() instanceof Player)) {
           this.logger.info("Name of person hit: " + ((Player) event.getEntity()).getDisplayName());
-          this.logger.info("Health before: " + ((Player) event.getEntity()).getHealth() + " cps modifier: "
-              + cpsMultiplier + " Armor = " + armorTargetDamageRemoved + " Enchant = "
-              + enchantTargetDamageRemoved + " Dmg = " + weaponTargetDamage
-              + " Net = " + (weaponTargetDamage + armorTargetDamageRemoved + enchantTargetDamageRemoved)
-              + " armourReduction = " + armourReduction
-              + " enchantReduction = " + enchantReduction);
+          this.logger
+              .info("Health before: " + ((Player) event.getEntity()).getHealth() + " cps modifier: "
+                  + cpsMultiplier + " Armor = " + armorTargetDamageRemoved + " Enchant = "
+                  + enchantTargetDamageRemoved + " Dmg = " + weaponTargetDamage
+                  + " Net = " + (weaponTargetDamage + armorTargetDamageRemoved
+                  + enchantTargetDamageRemoved)
+                  + " armourReduction = " + armourReduction
+                  + " enchantReduction = " + enchantReduction);
         }
         //LOG.info("origDamage" + event.getDamage());
         //LOG.info("cps modifier: " + cpsMultiplier + " animation gap: " + AnimationGap);
@@ -357,7 +383,8 @@ public class EntityDamageListener implements Listener {
       if ((lastMessage == 0 || System.currentTimeMillis() - lastMessage > ILL_FIT_COOLDOWN)
           && Math.random() < 0.3) {
         this.illFitTimer.put((Player) entity, System.currentTimeMillis());
-        entity.sendMessage(ChatColor.RED + "Your ill-fitting armor pinches, chafes, and isn't helping much.");
+        entity.sendMessage(
+            ChatColor.RED + "Your ill-fitting armor pinches, chafes, and isn't helping much.");
       }
     }
 
@@ -415,17 +442,5 @@ public class EntityDamageListener implements Listener {
   private double getProjectileProtectionReduction(int projProtLevels) {
     // proj prot 16 ->
     return 0.0042 * (13.925 - ((projProtLevels / 4D - 4.7) * (projProtLevels / 5D - 5.7)) / 2);
-  }
-
-  private boolean isNearPortal(Location pl, int y) {
-    World w = pl.getWorld();
-    for (int x = pl.getBlockX()-2; x < pl.getBlockX()+2; x++){
-      for (int z = pl.getBlockZ()-2; z < pl.getBlockZ()+2; z++){
-        if (w.getBlockAt(x,y,z).getType() != Material.BEDROCK){
-          return true;
-        }
-      }
-    }
-    return false;
   }
 }
