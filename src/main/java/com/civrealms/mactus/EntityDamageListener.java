@@ -441,6 +441,6 @@ public class EntityDamageListener implements Listener {
 
   private double getProjectileProtectionReduction(int projProtLevels) {
     // proj prot 16 -> 0.0551
-    return 0.0044 * (13.925 - ((projProtLevels / 4D - 4.7) * (projProtLevels / 5D - 5.7)) / 2);
+    return 0.0044 * (13.395 - ((projProtLevels / 4D - 4.7) * (projProtLevels / 5D - 5.7)) / 2);
   }
 }
